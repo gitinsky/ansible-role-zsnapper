@@ -11,11 +11,31 @@
 - name: create nodeenv
   command: bash -c "cd /root && nodeenv zsnapper" creates=/root/zsnapper
 
+- name: install zsnapper modules
+  command: bash -c "source /root/zsnapper/bin/activate && npm -g install {{ item }}"
+  with_items:
+    - async
+    - cron
+    - ini
+    - minimatch
+    - lru-cache
+    - sigmund
+
 - name: install zsnapper
-  command: bash -c "source /root/zsnapper/bin/activate && npm -g install zsnapper"
+  command: bash -c "source /root/zsnapper/bin/activate && npm -g install zsnapper" creates=/root/zsnapper/bin/zsnapper
 
 - name: change node interpreter
   command: bash -c "sed -i -e \"s/#\!\/usr\/node\/bin\/node/#!\/bin\/env node/g\" /root/zsnapper/bin/zsnapper"
 
+- name: change node interpreter again
+  command: bash -c "sed -i -e \"s/#\!\/usr\/node\/bin\/node/#!\/bin\/env node/g\" /root/zsnapper/lib/node_modules/zsnapper/zsnapper"
+
 - name: put zsnapper config
   template: src=zsnapper.ini dest=/etc/zsnapper.ini
+
+- name: put start_znapper.sh
+  template: src=start_zsnapper.sh dest=/root/start_zsnapper.sh mode=0755
+
+- name: put zsnapper.rb
+  template: src=zsnapper.rb dest=/etc/eye/zsnapper.rb
+  notify: reload eye
