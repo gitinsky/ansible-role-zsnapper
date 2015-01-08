@@ -13,3 +13,9 @@
 
 - name: install zsnapper
   command: bash -c "source /root/zsnapper/bin/activate && npm -g install zsnapper"
+
+- name: change node interpreter
+  command: bash -c "sed -i -e \"s/#\!\/usr\/node\/bin\/node/#!\/bin\/env node/g\" /root/zsnapper/bin/zsnapper"
+
+- name: put zsnapper config
+  template: src=zsnapper.ini dest=/etc/zsnapper.ini
