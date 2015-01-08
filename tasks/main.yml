@@ -1,0 +1,15 @@
+---
+- name: install pip
+  yum: name=python-pip state=present
+
+- name: install gcc-c++
+  yum: name=gcc-c++ state=present
+
+- name: install nodeenv
+  pip: name=nodeenv state=present
+
+- name: create nodeenv
+  command: bash -c "cd /root && nodeenv zsnapper" creates=/root/zsnapper
+
+- name: install zsnapper
+  command: bash -c "source /root/zsnapper/bin/activate && npm -g install zsnapper"
