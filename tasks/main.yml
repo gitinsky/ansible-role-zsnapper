@@ -1,41 +1,20 @@
 ---
-- name: install pip
-  yum: name=python-pip state=present
+- name: Download zsnapper
+  get_url: url=https://github.com/calmh/zsnapper/releases/download/v2.0.0/zsnapper-linux-amd64.tar.gz dest=/root/zsnapper-linux-amd64.tar.gz
 
-- name: install gcc-c++
-  yum: name=gcc-c++ state=present
-
-- name: install nodeenv
-  pip: name=nodeenv state=present
-
-- name: create nodeenv
-  command: bash -c "cd /root && nodeenv zsnapper" creates=/root/zsnapper
-
-- name: install zsnapper modules
-  command: bash -c "source /root/zsnapper/bin/activate && npm -g install {{ item }}"
-  with_items:
-    - async
-    - cron
-    - ini
-    - minimatch
-    - lru-cache
-    - sigmund
-
-- name: install zsnapper
-  command: bash -c "source /root/zsnapper/bin/activate && npm -g install zsnapper" creates=/root/zsnapper/bin/zsnapper
-
-- name: change node interpreter
-  command: bash -c "sed -i -e \"s/#\!\/usr\/node\/bin\/node/#!\/bin\/env node/g\" /root/zsnapper/bin/zsnapper"
-
-- name: change node interpreter again
-  command: bash -c "sed -i -e \"s/#\!\/usr\/node\/bin\/node/#!\/bin\/env node/g\" /root/zsnapper/lib/node_modules/zsnapper/zsnapper"
+- name: Unpack zsnapper
+  unarchive:
+    src: /root/zsnapper-linux-amd64.tar.gz
+    dest: /opt
+    remote_src: True
 
 - name: put zsnapper config
-  template: src=zsnapper.ini dest=/etc/zsnapper.ini
+  template: src=zsnapper.yml dest=/etc/zsnapper.yml
 
-- name: put start_znapper.sh
-  template: src=start_zsnapper.sh dest=/root/start_zsnapper.sh mode=0755
+- name: put systemd unit file
+  template: src=zsnapper.service dest=/etc/systemd/system/zsnapper.service owner=root group=root mode=0644
+  when: "(ansible_distribution == 'Debian' and ansible_distribution_major_version == '8') or (ansible_distribution == 'Ubuntu' and (ansible_distribution_version|version_compare(14.04, '>')))"
 
-- name: put zsnapper.rb
-  template: src=zsnapper.rb dest=/etc/eye/zsnapper.rb
-  notify: reload eye
+- name: enable zsnapper service
+  service: name=zsnapper enabled=yes state=started
+  when: "(ansible_distribution == 'Debian' and ansible_distribution_major_version == '8') or (ansible_distribution == 'Ubuntu' and (ansible_distribution_version|version_compare(14.04, '>')))"

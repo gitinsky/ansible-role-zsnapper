@@ -1,0 +1,13 @@
+- family: quick
+  datasets:
+    - tank/*
+  schedule: "@daily"
+  keep: 30
+  recursive: true
+
+- family: hourly
+  datasets:
+    - tank/*
+  schedule: "@hourly"
+  keep: 12
+  recursive: true
