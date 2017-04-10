@@ -10,6 +10,7 @@
 
 - name: put zsnapper config
   template: src=zsnapper.yml dest=/etc/zsnapper.yml
+  notify: restart zsnapper
 
 - name: put systemd unit file
   template: src=zsnapper.service dest=/etc/systemd/system/zsnapper.service owner=root group=root mode=0644
