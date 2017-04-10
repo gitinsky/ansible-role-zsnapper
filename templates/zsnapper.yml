@@ -1,13 +1,10 @@
-- family: quick
+{% for family in zsnapper.families %}
+- family: {{ family.name }}
   datasets:
-    - tank/*
-  schedule: "@daily"
-  keep: 30
-  recursive: true
-
-- family: hourly
-  datasets:
-    - tank/*
-  schedule: "@hourly"
-  keep: 12
-  recursive: true
+{% for dataset in family.datasets %}
+    - {{ dataset }}
+{% endfor %}
+  schedule: "{{ family.schedule }}"
+  keep: {{ family.keep }}
+  recursive: {{ family.recursive }}
+{% endfor %}
